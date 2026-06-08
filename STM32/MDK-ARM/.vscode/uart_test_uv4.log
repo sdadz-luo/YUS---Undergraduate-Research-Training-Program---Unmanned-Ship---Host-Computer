@@ -1,0 +1,4 @@
+Load "uart_test\\uart_test.axf" 
+Erase Done.Programming Done.Verify OK.Application running ...
+RDDI-DAP Error
+Flash Load finished at 00:47:22

@@ -1,0 +1,22 @@
+*** Using Compiler 'V6.24', folder: 'D:\keil5\ARM\ARMCLANG\Bin'
+Build target 'Target_1'
+Before Build - User command #1: cmd /c ""c:\Users\25530\Desktop\RA_uart\FSP_Project\rasc_launcher.bat" "c:\Users\25530\Desktop\RA_uart\FSP_Project\rasc_version.txt" -nosplash --launcher.suppressErrors --generate --compiler ARMv6 --devicefamily ra "c:\Users\25530\Desktop\RA_uart\FSP_Project\configuration.xml" 2> "%TEMP%\rasc_stderr.out" && echo. > "c:\Users\25530\Desktop\RA_uart\FSP_Project\output.rasc""
+无法分析 AutoRun 注册表项中指定的值。
+[INFO] Input file "c:\Users\25530\Desktop\RA_uart\FSP_Project\configuration.xml" is older than output file "c:\Users\25530\Desktop\RA_uart\FSP_Project\output.rasc". Skipping RASC invocation.
+src/hal_entry.c(85): warning: incompatible pointer types passing 'uint8_t (*)[9]' (aka 'unsigned char (*)[9]') to parameter of type 'const uint8_t *' (aka 'const unsigned char *') [-Wincompatible-pointer-types]
+   85 |             R_SCI_UART_Write(&g_uart3_ctrl, &TData,9);
+      |                                             ^~~~~~
+./ra/fsp/inc/instances\r_sci_uart.h(225): note: passing argument to parameter 'p_src' here
+  225 | fsp_err_t R_SCI_UART_Write(uart_ctrl_t * const p_api_ctrl, uint8_t const * const p_src, uint32_t const bytes);
+      |                                                                                  ^
+1 warning generated.
+compiling hal_entry.c...
+linking...
+Program Size: Code=12756 RO-data=1600 RW-data=28 ZI-data=6180  
+FromELF: creating hex file...
+After Build - User command #1: cmd /c ""c:\Users\25530\Desktop\RA_uart\FSP_Project\rasc_launcher.bat" "c:\Users\25530\Desktop\RA_uart\FSP_Project\rasc_version.txt" -nosplash --launcher.suppressErrors --gensmartbundle --compiler ARMv6 --devicefamily ra "c:\Users\25530\Desktop\RA_uart\FSP_Project\configuration.xml" "c:\Users\25530\Desktop\RA_uart\FSP_Project\Objects\FSP_Project.axf" 2> "%TEMP%\rasc_stderr.out""
+无法分析 AutoRun 注册表项中指定的值。
+[INFO] Input file "c:\Users\25530\Desktop\RA_uart\FSP_Project\Objects\FSP_Project.axf" is newer than output file "c:\Users\25530\Desktop\RA_uart\FSP_Project\Objects\FSP_Project.sbd". Proceeding with RASC invocation...
+Generating Smart Bundle..
+".\Objects\FSP_Project.axf" - 0 Error(s), 1 Warning(s).
+Build Time Elapsed:  00:00:10
