@@ -1,30 +1,27 @@
+/*============================================================================*
+ * 上位机主程序
+ *
+ * 功能概要：
+ *   1. UART3 接收串口屏触摸指令，解析为屏包通过 UART2(LoRa) 转发
+ *   2. GPT 定时器每 10ms 触发 ADC 扫描（4 通道）
+ *   3. ADC 结果经死区判断 + 摇杆方向合成，变化时发送摇杆包
+ *
+ * 硬件平台：Renesas RA6M5 (R7FA6M5BF)
+ * 工具链：  MDK-ARM (ARMCC V6.24)
+ *============================================================================*/
+
 #include "hal_data.h"
 #include "debug_uart/uart.h"
 #include "debug_gpt/gpt.h"
+#include "debug_adc/adc.h"
+#include "debug_lora/lora_proto.h"
 
-extern int gpt_flag;
-extern int uart2_flag;
-extern int uart3_flag;
-extern int uart4_flag;
-extern int uart5_flag;
-extern uint8_t RData2[255];
-extern uint8_t RData4[255];
-
-int dataid_int = 0;
-uint8_t strdataid_int[32] = {0};
-float dataversion = 0 ;
-uint8_t strdataversion[32] = {0};
-uint8_t dataid[32] = {0};
-float datavalue = 0;
-uint8_t strdatavalue[32] = {0};
-
-uint8_t TData[9] = {0};
+/* 全局变量 ── 供调试器查看 -------------------------------------------- */
+uint16_t adc0, adc1, adc2, adc3;    /* ADC 原始值 */
+uint8_t  joy1, joy2;                /* 摇杆1/2 方向: 0=中 1=上 2=下 3=左 4=右 */
 
 #if (1 == BSP_MULTICORE_PROJECT) && BSP_TZ_SECURE_BUILD
-bsp_ipc_semaphore_handle_t g_core_start_semaphore =
-{
-    .semaphore_num = 0
-};
+bsp_ipc_semaphore_handle_t g_core_start_semaphore = { .semaphore_num = 0 };
 #endif
 
 /*******************************************************************************************************************//**
@@ -33,145 +30,117 @@ bsp_ipc_semaphore_handle_t g_core_start_semaphore =
  **********************************************************************************************************************/
 void hal_entry(void)
 {
+    /* ---- 串口屏接收缓冲区 ------------------------------------------ */
+    uint8_t  rx_buf[128];               /* UART3 原始数据 */
+    uint16_t rx_len;                    /* 本次读取的字节数 */
 
-    UART2_Init();  
-    UART5_Init();  
-    UART3_Init(); 
-    UART4_Init(); 
+    /* ---- 串口屏帧解析状态 ------------------------------------------ */
+    uint8_t  scr_buf[32];               /* 帧累积缓冲区 */
+    uint16_t scr_len = 0;               /* 已累积字节数 */
+    bool     scr_frame_started = false; /* 正在收帧 */
+    bool     scr_frame_ready = false;   /* 已收到完整帧 */
+    uint8_t  scr_boat = 0;             /* 解析出的船编号 */
+    uint8_t  scr_comp = 0;             /* 解析出的组件编号 */
+    uint8_t  scr_comp_data = 0;        /* 解析出的组件数据 */
 
-    gpt0_init();
+    /* ---- LoRa 发送缓冲区 ------------------------------------------- */
+    uint8_t  scr_pkt[SCR_PKT_SIZE];     /* 屏包: EE <船号> <组件> <数据> CRC8 FF */
+    uint8_t  joy_pkt[JOY_PKT_SIZE];     /* 摇杆包: CC 01 <方向1> 02 <方向2> CRC8 33 */
 
-    while(1)
+    /* ---- 摇杆状态跟踪 ---------------------------------------------- */
+    uint8_t  prev_joy1 = 0;             /* 摇杆1 上次发送的方向 */
+    uint8_t  prev_joy2 = 0;             /* 摇杆2 上次发送的方向 */
+
+    /* ---- 初始化各硬件模块 ------------------------------------------ */
+    Uart_Init();                        /* UART3(串口屏) + UART2(LoRa) + DMAC */
+    Gpt_Init();                         /* GPT 定时器 10ms */
+    Adc_Init();                         /* ADC0 四通道(AN04/AN05/AN10/AN12) */
+    Gpt_Start();                        /* 启动 10ms 定时器 */
+
+    while (1)
     {
-        if (uart2_flag == 1){
-			if(RData2[3] == 48){
-				printf_string("t1.txt","STOP");
-			}else{
-				switch(RData2[1]){
-					case 0x00:
-						printf_string("t1.txt","STOP");
-						break;
-					case 0x01:
-						printf_string("t1.txt","AHEAD");
-						break;
-					case 0x02:
-						printf_string("t1.txt","BEHIND");
-						break;
-					case 0x03:
-						printf_string("t1.txt","LEFT");
-						break;
-					case 0x04:
-						printf_string("t1.txt","RIGHT");
-						break;
-				}
-			}
-			if(RData2[1]==0x0E){
-			TData[0] = RData2[2];
-			TData[1] = RData2[3] + 48;
-			}
-			else{
-			TData[0] = RData2[1] + 48;
-			TData[1] = RData2[2] + 48;
-			TData[2] = RData2[3] + 48;
-			TData[3] = RData2[4] + 48;
-			TData[4] = RData2[5] + 48;
-			TData[5] = RData2[6] + 48;
-			TData[6] = RData2[7] + 49;
-			TData[7] = RData2[8] + 48;
-			TData[8] = RData2[9] + 48;}
-			printf_number("n0.val",TData[1]-48);
-			printf_number("n1.val",TData[3]-48);
-			printf_number("n2.val",TData[4]-48);
-            R_SCI_UART_Write(&g_uart3_ctrl, &TData,9);
-            /* 同步发送：等待前一次 TX 完全结束后再发新数据 */
-            while (uart3_send_complete_flag == false);
-            uart3_send_complete_flag = false;
-            uart2_flag = 0;
+        /* =============================================================
+         * 1. 串口屏数据接收 → 帧检测
+         *
+         * 串口屏以 EE <船号> <组件> <数据> FF 格式发送触摸指令。
+         * 检测到 EE 开始收帧，收到 FF 结束，提取中间三字节作为组件命令。
+         * ============================================================= */
+        rx_len = Uart3_GetData(rx_buf, sizeof(rx_buf));
+        for (uint16_t i = 0; i < rx_len; i++)
+        {
+            uint8_t b = rx_buf[i];
+            if (!scr_frame_started)
+            {
+                /* 等待帧头 0xEE */
+                if (0xEE == b) { scr_buf[0] = b; scr_len = 1; scr_frame_started = true; }
+            }
+            else
+            {
+                /* 追加字节到帧缓冲区 */
+                if (scr_len < sizeof(scr_buf)) scr_buf[scr_len++] = b;
+
+                /* 检测帧尾 0xFF（至少已收 3 字节: EE + 船号 + 组件） */
+                if (0xFF == b && scr_len >= 3)
+                {
+                    scr_boat = scr_buf[1]; scr_comp = scr_buf[2]; scr_comp_data = scr_buf[3];
+                    scr_frame_ready = true; scr_frame_started = false; scr_len = 0;
+                }
+            }
         }
 
-		if (uart4_flag == 1){
-			sscanf((char *)RData4,"{\"id\":\"%d\",\"version\":\"%f\",\"params\":{\"%31[^\"]\":\"%[^\"]\"}}", &dataid_int, &dataversion, dataid, strdatavalue);
-			
-			if(strdatavalue[2] == ':'){
-				printf_string("t3.txt",(char*)strdatavalue);
-				timedata[0] = strdatavalue[0];
-				timedata[1] = strdatavalue[1];
-				timedata[2] = strdatavalue[2];
-				timedata[3] = strdatavalue[3];
-				timedata[4] = strdatavalue[4];
-			}
-			else{	
-				sscanf((char*)strdatavalue,"%f",&datavalue);
-				uint8_t buffer[20];
-				sprintf((char*)buffer, "%.4f", datavalue);
-				sscanf((char*)buffer, "%f", &datavalue);
-			}
-			
-			if(dataid[0] == 'i' && dataid[1] == 'm' && dataid[2] == 'u'){
-				if(dataid[4] == 'x'){
-					printf_float("x0.val", datavalue);
-					imu_x = datavalue;
-				}
-				else if(dataid[4] == 'y'){
-					printf_float("x1.val", datavalue);
-					imu_y = datavalue;
-				}
-				else if(dataid[4] == 'z'){
-					printf_float("x2.val", datavalue);
-					imu_z = datavalue;
-				}
-			}
-			else if(dataid[0] == 'd' && dataid[1] == 'h' && dataid[2] == 't'){
-				printf_float("x3.val", datavalue);
-				dht11 = datavalue;
-			}
-	 		else if(dataid[0] == 'h' && dataid[1] == 'u' && dataid[2] == 'm'){
-				printf_float("x4.val", datavalue);
-				humi = datavalue;
-			}
-			else if(dataid[0] == 't' && dataid[1] == 'e' && dataid[2] == 'm'){
-				printf_float("x5.val", datavalue);
-				temp = datavalue;
-			}
-			else if(dataid[0] == 'P' && dataid[1] == 'H' ){
-				printf_float("x6.val", datavalue);
-				ph = datavalue;
-			}
-			else if(dataid[0] == 'c' && dataid[1] == 'o' && dataid[2] == 'n'){
-				printf_float("x7.val", datavalue);
-				cond = datavalue;
-			}
-			else if(dataid[0] == 't' && dataid[1] == 'u' && dataid[2] == 'r'){
-				printf_float("x8.val", datavalue);
-				turb = datavalue;
-			}
-			memset(dataid, 0, sizeof(dataid));
-			memset(strdatavalue, 0, sizeof(strdatavalue));
-			uart4_flag = 0;
-		}
+        /* =============================================================
+         * 2. 定时 ADC 扫描
+         *
+         * GPT 定时器每 10ms 触发一次中断，置位超时标志。
+         * 主循环检测到标志后启动一次 ADC 单次扫描（4 通道）。
+         * ============================================================= */
+        if (Gpt_TimeoutCheck()) Adc_StartScan();
 
-		if (uart5_flag == 1){
-			 printf_string("password.txt","123456");
-			 uart5_flag = 0;
-		}
-
-        if (gpt_flag == 1)
+        /* =============================================================
+         * 3. ADC 结果处理 → 方向态 → 摇杆方向合成
+         *
+         * ADC 扫描完成后自动触发 adc_callback，将原始值存入缓存。
+         * 主循环检测到完成标志后：
+         *   a) Adc_ProcessAll()   — 原始值 → 三态方向(0/1/2)，死区60%
+         *   b) Adc_JoystickDir()  — X/Y 方向 → 摇杆方向(0~4)
+         * ============================================================= */
+        if (Adc_ScanCompleteCheck())
         {
-			printf_string("t3.txt",(char*)timedata);
-			printf_float("x0.val", imu_x);
-			printf_float("x1.val", imu_y);
-			printf_float("x2.val", imu_z);
-			printf_float("x3.val", dht11);
-			printf_float("x4.val", humi);
-			printf_float("x5.val", temp);
-			printf_float("x6.val", ph);
-			printf_float("x7.val", cond);
-			printf_float("x8.val", turb);
-            gpt_flag = 0;
+            Adc_ProcessAll();
+            adc0 = Adc_GetResult(0); adc1 = Adc_GetResult(1);
+            adc2 = Adc_GetResult(2); adc3 = Adc_GetResult(3);
+            joy1 = Adc_JoystickDir(Adc_GetDirection(0), Adc_GetDirection(1));
+            joy2 = Adc_JoystickDir(Adc_GetDirection(2), Adc_GetDirection(3));
+        }
+
+        /* =============================================================
+         * 4. LoRa 无线发送
+         *
+         * 两种数据包各自独立发送：
+         *
+         *   屏包  — 串口屏有触摸指令时触发，包含组件命令
+         *   摇杆包 — 摇杆方向变化时触发，包含两个摇杆的方向值
+         *
+         * 两种包可同时发送（同一循环内先发屏包再发摇杆包）。
+         * ============================================================= */
+
+        /* 屏包: 串口屏收到新数据 */
+        if (scr_frame_ready)
+        {
+            scr_frame_ready = false;
+            Lora_BuildScrPacket(scr_boat, scr_comp, scr_comp_data, scr_pkt);
+            Lora_SendPacket(scr_pkt, SCR_PKT_SIZE);
+            prev_joy1 = joy1; prev_joy2 = joy2;  /* 同步摇杆状态 */
+        }
+
+        /* 摇杆包: 任一摇杆方向发生变化 */
+        if ((joy1 != prev_joy1) || (joy2 != prev_joy2))
+        {
+            Lora_BuildJoyPacket(joy1, joy2, joy_pkt);
+            Lora_SendPacket(joy_pkt, JOY_PKT_SIZE);
+            prev_joy1 = joy1; prev_joy2 = joy2;
         }
     }
-
-    /* TODO: add your own code here */
 
     /* Wake up 2nd core if this is first core and we are inside a multicore project. */
 #if (0 == _RA_CORE) && (1 == BSP_MULTICORE_PROJECT) && !BSP_TZ_NONSECURE_BUILD

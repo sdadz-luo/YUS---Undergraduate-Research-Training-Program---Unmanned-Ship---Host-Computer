@@ -383,6 +383,18 @@
       <Groups>
         <Group>
           <GroupName>Source Group 1</GroupName>
+          <Files>
+            <File>
+              <FileName>lora_proto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\debug_lora\lora_proto.c</FilePath>
+            </File>
+            <File>
+              <FileName>lora_proto.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\debug_lora\lora_proto.h</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>:Renesas RA Smart Configurator:Common Sources</GroupName>
@@ -417,6 +429,16 @@
               <FileType>5</FileType>
               <FilePath>.\src\debug_gpt\gpt.h</FilePath>
             </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\debug_adc\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>adc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\debug_adc\adc.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -445,5 +467,14 @@
     </components>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>FSP_Project</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

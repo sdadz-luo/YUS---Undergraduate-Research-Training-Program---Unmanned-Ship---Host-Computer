@@ -1,0 +1,97 @@
+# ============================================
+# Host Computer - 上位机项目 .gitignore
+# 基于串口屏 + RA6M5 + STM32H750 的嵌入式项目
+# ============================================
+
+# ========================
+# MDK-ARM / Keil uVision 通用构建产物
+# ========================
+*.o
+*.d
+*.crf
+*.axf
+*.hex
+*.build_log.htm
+*.map
+*.lnp
+*.sct
+*.rpd
+*.sbd
+*.dep
+*.iex
+*.lst
+*.scvd
+
+# ========================
+# 调试配置（每个开发者本地生成）
+# ========================
+DebugConfig/
+*.dbgconf
+
+# ========================
+# IDE / 工具日志
+# ========================
+*_uv4.log
+*keil-assistant.log
+
+# ========================
+# 瑞萨 RA 项目生成文件
+# ========================
+
+# FSP 自动生成的源码
+RA/ra_gen/
+
+# FSP 配置头文件
+RA/ra_cfg/
+
+# RTE 生成文件
+RA/RTE/
+
+# RASC 配置中间文件及输出
+RA/configuration.xml
+RA/output.rasc
+RA/buildinfo.gpdsc
+RA/bsp_linker_info.h
+RA/ra_cfg.txt
+RA/*.api_xml
+RA/.secure_*
+
+# IDE 本地设置
+RA/.settings/
+
+# ========================
+# STM32 项目生成文件
+# ========================
+
+# 构建输出目录
+STM32/MDK-ARM/uart_test/
+
+# RTE 生成文件
+STM32/MDK-ARM/RTE/
+
+# 调试配置
+STM32/MDK-ARM/DebugConfig/
+
+# 汇编列表文件
+STM32/MDK-ARM/*.lst
+
+# ========================
+# VS Code 本地设置（保留共享配置）
+# ========================
+.vscode/keil-assistant.log
+.vscode/*_uv4.log
+
+# ========================
+# 操作系统文件
+# ========================
+Thumbs.db
+.DS_Store
+*.swp
+*.swo
+*~
+
+# ========================
+# 其他临时文件
+# ========================
+*.bak
+*.tmp

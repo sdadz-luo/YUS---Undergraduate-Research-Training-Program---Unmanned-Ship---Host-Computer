@@ -1,167 +1,210 @@
 #include "uart.h"
 
-/* ===== ????????????????STM32 main.c?????????===== */
+/*============================================================================*
+ * 模块内部变量
+ *============================================================================*/
 
-volatile uint8_t uart2_flag = 0;
-volatile uint8_t uart3_flag = 0;
-volatile uint8_t uart4_flag = 0;
-volatile uint8_t uart5_flag = 0;
+/* UART3 接收环形缓冲区 ------------------------------------------------ */
+static uint8_t     g_uart3_rx_buf[UART3_RX_BUF_SIZE];
+static volatile uint16_t g_uart3_rx_head = 0;       /* 写入位置           */
+static volatile uint16_t g_uart3_rx_tail = 0;       /* 读取位置           */
 
-volatile uint8_t RData2[255] = {0};
-volatile uint8_t RData_Tap2 = 0;
+/* UART3 DMA 单字节接收缓冲区 —— DMAC 直接将数据从 RDR 搬移到此处 */
+static uint8_t     g_uart3_rx_byte;
 
-volatile uint8_t RData4[255] = {0};
-volatile uint8_t RData_Tap4 = 0;
+/* UART2 发送状态标志 */
+static volatile bool g_uart2_tx_busy = false;
 
-float imu_x = 0;
-float imu_y = 0;
-float imu_z = 0;
-float dht11 = 0;
-float humi = 0;
-float temp = 0;
-float ph = 0;
-float cond = 0;
-float turb = 0;
-uint8_t timedata[] = "00:00";
-
-int ceshi=0;
-
-/* ===== FSP???????????? ===== */
-volatile bool uart2_send_complete_flag = false;
-volatile bool uart3_send_complete_flag = false;
-volatile bool uart4_send_complete_flag = false;
-volatile bool uart5_send_complete_flag = false;
-
-/* ===== ???????????? ===== */
-
-/* UART2??????????STM32 USART1?????????? + printf?????*/
-void UART2_Init(void){
-    fsp_err_t err=FSP_SUCCESS;
-    err=R_SCI_UART_Open(&g_uart2_ctrl,&g_uart2_cfg);
-    assert(FSP_SUCCESS==err);
-}
-
-/* UART3??????????STM32 USART3??????TData[9]??*/
-void UART3_Init(void){
-    fsp_err_t err=FSP_SUCCESS;
-    err=R_SCI_UART_Open(&g_uart3_ctrl,&g_uart3_cfg);
-    assert(FSP_SUCCESS==err);
-}
-
-/* UART4??????????STM32 UART4??JSON????*/
-void UART4_Init(void){
-    fsp_err_t err=FSP_SUCCESS;
-    err=R_SCI_UART_Open(&g_uart4_ctrl,&g_uart4_cfg);
-    assert(FSP_SUCCESS==err);
-}
-
-/* UART5??????????STM32 USART2??????????????'A'???????*/
-void UART5_Init(void){
-    fsp_err_t err=FSP_SUCCESS;
-    err=R_SCI_UART_Open(&g_uart5_ctrl,&g_uart5_cfg);
-    assert(FSP_SUCCESS==err);
-}
-
-
-void uart2_callback(uart_callback_args_t *p_args){
-
-    switch (p_args->event)
-    {
-        case UART_EVENT_RX_CHAR:{
-            RData2[RData_Tap2++] = p_args->data;
-            if (RData2[0] != 0x0A) RData_Tap2 = 0;
-            if((RData2[RData_Tap2-1] == 0x0A)&&(RData2[RData_Tap2-2] == 0x0D)){
-                RData_Tap2 = 0;
-                uart2_flag = 1;
-		    }
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:{
-            uart2_send_complete_flag = true;
-            break;
-        }
-    default:break;
-    }
-}
-
-/* UART3 ????????????STM32 USART3?????????*/
-void uart3_callback(uart_callback_args_t *p_args){
-    if (p_args->event == UART_EVENT_TX_COMPLETE){
-        uart3_send_complete_flag = true;
-    }
-}
-
-/* UART4 ??????????????STM32 HAL_UART_RxCpltCallback??UART4??????*/
-void uart4_callback(uart_callback_args_t *p_args){
-    switch (p_args->event)
-    {
-    case UART_EVENT_RX_CHAR:{
-		RData4[RData_Tap4] = p_args->data;
-		RData_Tap4++;
-		if((RData4[RData_Tap4-1] == '}')&&(RData4[RData_Tap4-2] == '}')){
-            uart4_flag = 1;
-			RData_Tap4 = 0;
-		}
-        break;
-    }
-    case UART_EVENT_TX_COMPLETE:{
-        uart4_send_complete_flag = true;
-        break;
-    }
-    }
-}
-
-/* UART5 ??????????????STM32 HAL_UART_RxCpltCallback??USART2??????*/
-void uart5_callback(uart_callback_args_t *p_args){
-
-    switch (p_args->event)
-    {
-    case UART_EVENT_RX_CHAR:{
-        if (p_args->data == 'A') uart5_flag = 1;
-        break;
-    }
-    case UART_EVENT_TX_COMPLETE:{
-        uart5_send_complete_flag = true;
-        break;
-    }
-    default:break;
-    }
-
-}
-
+/*============================================================================*
+ * 内部函数
+ *============================================================================*/
 
 /**
- * @brief printf?????UART2?????STM32 USART1??
- * @note  ????????????????TEI???????????
+ * @brief 启动 UART3 接收（使用 DMAC 传输 1 字节）
+ *
+ * 调用 read() 后，UART 驱动会通过 DMAC 将下一个接收到的字节
+ * 从 RDR 寄存器直接搬运到 g_uart3_rx_byte。
  */
-int fputc(int ch, FILE *f)
+static void uart3_start_rx(void)
 {
-    (void)f;
-    R_SCI_UART_Write(&g_uart2_ctrl, (uint8_t *)&ch, 1);
-    while (uart2_send_complete_flag == false);
-    uart2_send_complete_flag = false;
-
-    return ch;
+    g_uart3.p_api->read(g_uart3.p_ctrl, &g_uart3_rx_byte, 1);
 }
 
-/**
- * @brief ?????????????????
- */
-void printf_string(char* name, char* showdata){
-    printf("%s=\"%s\"\xff\xff\xff", name, showdata);
+/*============================================================================*
+ * 环形缓冲区写入辅助函数（在中断中使用）
+ *============================================================================*/
+static void uart3_store_byte(uint8_t data)
+{
+    uint16_t next = (g_uart3_rx_head + 1) % UART3_RX_BUF_SIZE;
+    if (next != g_uart3_rx_tail)                    /* 缓冲区不满则存入 */
+    {
+        g_uart3_rx_buf[g_uart3_rx_head] = data;
+        g_uart3_rx_head = next;
+    }
+    /* 缓冲区满则丢弃该字节，可在此添加溢出计数 */
 }
 
-/**
- * @brief ????????????????
- */
-void printf_number(char* name, int num){
-    printf("%s=%d\xff\xff\xff", name, num);
+/*============================================================================*
+ * FSP 回调函数
+ *============================================================================*/
+
+/*******************************************************************************************************************//**
+ * @brief DMAC 传输回调 —— UART3 RX 的 DMA 传输完成
+ *
+ * DMAC 已将 UART3 接收到的字节从 RDR 搬运到 g_uart3_rx_byte，
+ * 在此将数据存入环形缓冲区并启动下一次接收。
+ *
+ * @note 此回调在 DMAC ISR 中执行，优先级高于 UART ISR。
+ **********************************************************************************************************************/
+void transfer_uart3_rx_callback(transfer_callback_args_t *p_args)
+{
+    FSP_PARAMETER_NOT_USED(p_args);
+
+    /* DMAC 传输完成，g_uart3_rx_byte 中的数据已就绪 */
+    uart3_store_byte(g_uart3_rx_byte);
+
+    /* 启动下一字节的 DMA 接收 */
+    uart3_start_rx();
 }
 
-/**
- * @brief ????????????????????10000???????
- */
-void printf_float(char* name, float num){
-    printf("%s=%d\xff\xff\xff", name, (int)(num * 10000));
+/*******************************************************************************************************************//**
+ * @brief UART3 接收回调 —— 来自串口屏的数据
+ *
+ * 数据流说明（DMAC 接收路径）：
+ *   1. UART3 RDR 收到字节 → ELC 触发 DMAC0
+ *   2. DMAC0 将字节从 RDR 搬运到 g_uart3_rx_byte
+ *   3. RXI ISR 触发 → 进入 DMA 路径 → 调用本回调 (UART_EVENT_RX_COMPLETE)
+ *   4. DMAC0 ISR 触发 → 调用 transfer_uart3_rx_callback（实际数据在此处理）
+ *
+ * 本回调中 UART_EVENT_RX_COMPLETE 仅表示 RXI 已触发，实际数据由
+ * transfer_uart3_rx_callback 处理。UART_EVENT_RX_CHAR 作为非 DMA 回退路径。
+ **********************************************************************************************************************/
+void uart3_callback(uart_callback_args_t *p_args)
+{
+    /* ---- 非 DMA 回退路径：字节直接从 RDR 读取 ---- */
+    if (UART_EVENT_RX_CHAR == p_args->event)
+    {
+        uart3_store_byte((uint8_t)p_args->data);
+    }
+    /* ---- DMA 路径：数据由 DMAC 搬运，RXI ISR 只通知完成 ---- */
+    else if (UART_EVENT_RX_COMPLETE == p_args->event)
+    {
+        /* 不在此处理数据 —— 字节由 DMAC 搬运，等待 transfer_uart3_rx_callback */
+    }
 }
 
+/*******************************************************************************************************************//**
+ * @brief UART2 (LoRa) 回调
+ **********************************************************************************************************************/
+void lora_callback(uart_callback_args_t *p_args)
+{
+    if (UART_EVENT_TX_COMPLETE == p_args->event)
+    {
+        g_uart2_tx_busy = false;
+    }
+
+    if (UART_EVENT_RX_COMPLETE == p_args->event)
+    {
+        /* UART2 暂不处理接收，可预留扩展 */
+    }
+}
+
+/*============================================================================*
+ * 接口函数
+ *============================================================================*/
+
+/*******************************************************************************************************************//**
+ * @brief 初始化所有 UART 模块
+ *
+ * 打开 UART3（串口屏接收）和 UART2（LoRa 发送），
+ * 并启动 UART3 的 DMAC 接收。
+ *
+ * @note UART3 open() 内部会自动打开并配置 g_transfer0 DMAC。
+ **********************************************************************************************************************/
+void Uart_Init(void)
+{
+    fsp_err_t err;
+
+    /* ---- 打开 UART3：串口屏数据接收（内部自动初始化 DMAC） ---- */
+    err = g_uart3.p_api->open(g_uart3.p_ctrl, g_uart3.p_cfg);
+    assert(FSP_SUCCESS == err);
+
+    /* ---- 打开 UART2：LoRa 模块 ---- */
+    err = g_uart2.p_api->open(g_uart2.p_ctrl, g_uart2.p_cfg);
+    assert(FSP_SUCCESS == err);
+
+    /* ---- 启动 UART3 的 DMAC 接收 ---- */
+    uart3_start_rx();
+}
+
+/*******************************************************************************************************************//**
+ * @brief 从 UART3 环形缓冲区读取数据
+ * @param buf  目标缓冲区
+ * @param len  最大读取字节数
+ * @return 实际读取字节数
+ **********************************************************************************************************************/
+uint16_t Uart3_GetData(uint8_t *buf, uint16_t len)
+{
+    uint16_t count = 0;
+
+    while ((g_uart3_rx_tail != g_uart3_rx_head) && (count < len))
+    {
+        buf[count++] = g_uart3_rx_buf[g_uart3_rx_tail];
+        g_uart3_rx_tail = (g_uart3_rx_tail + 1) % UART3_RX_BUF_SIZE;
+    }
+
+    return count;
+}
+
+/*******************************************************************************************************************//**
+ * @brief 获取 UART3 缓冲区中可读数据量
+ * @return 可读字节数
+ **********************************************************************************************************************/
+uint16_t Uart3_DataAvailable(void)
+{
+    if (g_uart3_rx_head >= g_uart3_rx_tail)
+    {
+        return g_uart3_rx_head - g_uart3_rx_tail;
+    }
+    else
+    {
+        return UART3_RX_BUF_SIZE - (g_uart3_rx_tail - g_uart3_rx_head);
+    }
+}
+
+/*******************************************************************************************************************//**
+ * @brief 清空 UART3 接收缓冲区
+ **********************************************************************************************************************/
+void Uart3_Flush(void)
+{
+    g_uart3_rx_head = 0;
+    g_uart3_rx_tail = 0;
+}
+
+/*******************************************************************************************************************//**
+ * @brief 通过 UART2 (LoRa) 发送数据
+ *
+ * 阻塞等待上一次发送完成后，启动新的发送。
+ * @param data  数据指针
+ * @param len   发送长度
+ **********************************************************************************************************************/
+void Uart2_SendData(const uint8_t *data, uint16_t len)
+{
+    /* 等待上一次发送完成 */
+    while (g_uart2_tx_busy)
+    {
+        /* 可在此喂看门狗或处理其它任务 */
+    }
+
+    g_uart2_tx_busy = true;
+    g_uart2.p_api->write(g_uart2.p_ctrl, data, len);
+}
+
+/*******************************************************************************************************************//**
+ * @brief 查询 UART2 发送状态
+ * @return true=空闲, false=正在发送
+ **********************************************************************************************************************/
+bool Uart2_IsIdle(void)
+{
+    return !g_uart2_tx_busy;
+}
