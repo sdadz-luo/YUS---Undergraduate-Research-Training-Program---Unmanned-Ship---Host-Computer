@@ -33,12 +33,23 @@
 #define JOY_PKT_SIZE            7           /* 摇杆包长度                 */
 #define JOY_PKT_CRC_LEN         5           /* CRC8 校验范围（CC~方向）  */
 
+/* 组件编号定义 ------------------------------------------------------------ */
+#define COMP_NONE               0x00        /* 无组件，仅摇杆             */
+#define COMP_LIGHT              0x01        /* 灯                         */
+#define COMP_PUMP               0x02        /* 水泵                       */
+#define COMP_PTZ_UP_DOWN        0x03        /* 云台上下                   */
+#define COMP_PTZ_LEFT_RIGHT     0x04        /* 云台左右                   */
+#define COMP_ARM_SERVO          0x05        /* 机械臂舵机编号             */
+#define COMP_ARM_DUTY           0x06        /* 机械臂占空比               */
+#define COMP_SPEED              0x07        /* 速度（0-10）               */
+#define COMP_NEW_CMD            0x08        /* 控制锁                     */
+
 /* 行驶方向宏（可按需修改）----------------------------------------------- */
 #define LORA_DIR_STOP           0x00        /* 停止                       */
 #define LORA_DIR_FORWARD        0x01        /* 前进                       */
 #define LORA_DIR_BACKWARD       0x02        /* 后退                       */
 #define LORA_DIR_LEFT           0x03        /* 左转                       */
-#define LORA_DIR_RIGHT          0x03        /* 右转（暂与左相同，可改）   */
+#define LORA_DIR_RIGHT          0x04        /* 右转                       */
 
 /* 摇杆方向(0~4) 转 协议行驶方向 ------------------------------------------ */
 #define JOYDIR_TO_LORA(dir)  ((dir) == 0 ? LORA_DIR_STOP    :     \
