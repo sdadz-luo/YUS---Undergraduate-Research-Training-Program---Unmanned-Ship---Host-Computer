@@ -107,7 +107,7 @@ void hal_entry(void)
          *
          * ADC 扫描完成后自动触发 adc_callback，将原始值存入缓存。
          * 主循环检测到完成标志后：
-         *   a) Adc_ProcessAll()   — 原始值 → 三态方向(0/1/2)，死区60%
+         *   a) Adc_ProcessAll()   — 原始值 → 三态方向(0/1/2)，死区半量程30%
          *   b) Adc_JoystickDir()  — X/Y 方向 → 摇杆方向(0~4)
          * ============================================================= */
         if (Adc_ScanCompleteCheck())
@@ -115,8 +115,10 @@ void hal_entry(void)
             Adc_ProcessAll();
             adc0 = Adc_GetResult(0); adc1 = Adc_GetResult(1);
             adc2 = Adc_GetResult(2); adc3 = Adc_GetResult(3);
-            joy1 = Adc_JoystickDir(Adc_GetDirection(0), Adc_GetDirection(1));
-            joy2 = Adc_JoystickDir(Adc_GetDirection(2), Adc_GetDirection(3));
+            joy1 = Adc_JoystickDir(Adc_GetDirection(0), Adc_GetDirection(1),
+                                   adc0, adc1, Adc_GetThreshold(0), Adc_GetThreshold(1));
+            joy2 = Adc_JoystickDir(Adc_GetDirection(2), Adc_GetDirection(3),
+                                   adc2, adc3, Adc_GetThreshold(2), Adc_GetThreshold(3));
         }
 
         /* =============================================================

@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\Objects\FSP_Project.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\FSP_Project.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Thu Jul  2 16:21:56 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Thu Jul  2 17:45:12 2026
 <BR><P>
-<H3>Maximum Stack Usage =        248 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        272 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 Reset_Handler &rArr; main &rArr; hal_entry &rArr; Adc_CalibrateCenter
 <P>
@@ -81,7 +81,7 @@ Function Pointers
 <H3>
 Global Symbols
 </H3>
-<P><STRONG><a name="[68]"></a>__aeabi_memcpy</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, memcpya.o(.text))
+<P><STRONG><a name="[69]"></a>__aeabi_memcpy</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, memcpya.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sci_uart_rxi_isr
 </UL>
 
@@ -89,16 +89,16 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[4f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemRuntimeInit
 </UL>
 
-<P><STRONG><a name="[69]"></a>__aeabi_memcpy8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memcpya.o(.text), UNUSED)
+<P><STRONG><a name="[6a]"></a>__aeabi_memcpy8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memcpya.o(.text), UNUSED)
 
 <P><STRONG><a name="[3c]"></a>__aeabi_memset</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 <BR><BR>[Called By]<UL><LI><a href="#[3d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_memset$wrapper
 <LI><a href="#[3b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
 </UL>
 
-<P><STRONG><a name="[6a]"></a>__aeabi_memset4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[6b]"></a>__aeabi_memset4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
-<P><STRONG><a name="[6b]"></a>__aeabi_memset8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[6c]"></a>__aeabi_memset8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
 <P><STRONG><a name="[3b]"></a>__aeabi_memclr</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[3c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset
@@ -108,7 +108,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[4f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemRuntimeInit
 </UL>
 
-<P><STRONG><a name="[6c]"></a>__aeabi_memclr8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[6d]"></a>__aeabi_memclr8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
 <P><STRONG><a name="[3d]"></a>_memset$wrapper</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, memseta.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[3c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset
@@ -128,6 +128,10 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hal_entry
 </UL>
 
+<P><STRONG><a name="[64]"></a>Adc_GetThreshold</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, adc.o(.text.Adc_GetThreshold))
+<BR><BR>[Called By]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hal_entry
+</UL>
+
 <P><STRONG><a name="[3e]"></a>Adc_Init</STRONG> (Thumb, 130 bytes, Stack size 16 bytes, adc.o(.text.Adc_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Adc_Init
 </UL>
@@ -140,8 +144,10 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hal_entry
 </UL>
 
-<P><STRONG><a name="[64]"></a>Adc_JoystickDir</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, adc.o(.text.Adc_JoystickDir))
-<BR><BR>[Called By]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hal_entry
+<P><STRONG><a name="[65]"></a>Adc_JoystickDir</STRONG> (Thumb, 94 bytes, Stack size 8 bytes, adc.o(.text.Adc_JoystickDir))
+<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Adc_JoystickDir
+</UL>
+<BR>[Called By]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hal_entry
 </UL>
 
 <P><STRONG><a name="[61]"></a>Adc_ProcessAll</STRONG> (Thumb, 102 bytes, Stack size 24 bytes, adc.o(.text.Adc_ProcessAll))
@@ -164,7 +170,7 @@ Global Symbols
 <P><STRONG><a name="[8]"></a>DebugMon_Handler</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, startup.o(.text.Default_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup.o(.fixed_vectors)
 </UL>
-<P><STRONG><a name="[6d]"></a>Default_Handler</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, startup.o(.text.Default_Handler), UNUSED)
+<P><STRONG><a name="[6e]"></a>Default_Handler</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, startup.o(.text.Default_Handler), UNUSED)
 
 <P><STRONG><a name="[2]"></a>HardFault_Handler</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, startup.o(.text.Default_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup.o(.fixed_vectors)
@@ -203,13 +209,13 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hal_entry
 </UL>
 
-<P><STRONG><a name="[66]"></a>Lora_BuildJoyPacket</STRONG> (Thumb, 100 bytes, Stack size 8 bytes, lora_proto.o(.text.Lora_BuildJoyPacket))
+<P><STRONG><a name="[67]"></a>Lora_BuildJoyPacket</STRONG> (Thumb, 100 bytes, Stack size 8 bytes, lora_proto.o(.text.Lora_BuildJoyPacket))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Lora_BuildJoyPacket
 </UL>
 <BR>[Called By]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hal_entry
 </UL>
 
-<P><STRONG><a name="[65]"></a>Lora_BuildScrPacket</STRONG> (Thumb, 76 bytes, Stack size 8 bytes, lora_proto.o(.text.Lora_BuildScrPacket))
+<P><STRONG><a name="[66]"></a>Lora_BuildScrPacket</STRONG> (Thumb, 76 bytes, Stack size 8 bytes, lora_proto.o(.text.Lora_BuildScrPacket))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Lora_BuildScrPacket
 </UL>
 <BR>[Called By]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hal_entry
@@ -415,7 +421,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> r_sci_uart.o(.rodata.g_uart_on_sci)
 </UL>
 <P><STRONG><a name="[0]"></a>Reset_Handler</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, startup.o(.text.Reset_Handler))
-<BR><BR>[Stack]<UL><LI>Max Depth = 248<LI>Call Chain = Reset_Handler &rArr; main &rArr; hal_entry &rArr; Adc_CalibrateCenter
+<BR><BR>[Stack]<UL><LI>Max Depth = 272<LI>Call Chain = Reset_Handler &rArr; main &rArr; hal_entry &rArr; Adc_CalibrateCenter
 </UL>
 <BR>[Calls]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemInit
@@ -491,7 +497,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemInit
 </UL>
 
-<P><STRONG><a name="[6e]"></a>bsp_init_internal</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, bsp_common.o(.text.bsp_init_internal), UNUSED)
+<P><STRONG><a name="[6f]"></a>bsp_init_internal</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, bsp_common.o(.text.bsp_init_internal), UNUSED)
 
 <P><STRONG><a name="[51]"></a>bsp_irq_cfg</STRONG> (Thumb, 138 bytes, Stack size 32 bytes, bsp_irq.o(.text.bsp_irq_cfg))
 <BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = bsp_irq_cfg &rArr; R_BSP_RegisterProtectDisable
@@ -522,10 +528,11 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> vector_data.o(.application_vectors)
 </UL>
-<P><STRONG><a name="[59]"></a>hal_entry</STRONG> (Thumb, 460 bytes, Stack size 184 bytes, hal_entry.o(.text.hal_entry))
-<BR><BR>[Stack]<UL><LI>Max Depth = 240<LI>Call Chain = hal_entry &rArr; Adc_CalibrateCenter
+<P><STRONG><a name="[59]"></a>hal_entry</STRONG> (Thumb, 570 bytes, Stack size 208 bytes, hal_entry.o(.text.hal_entry))
+<BR><BR>[Stack]<UL><LI>Max Depth = 264<LI>Call Chain = hal_entry &rArr; Adc_CalibrateCenter
 </UL>
-<BR>[Calls]<UL><LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Adc_JoystickDir
+<BR>[Calls]<UL><LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Adc_JoystickDir
+<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Adc_GetThreshold
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Adc_GetDirection
 <LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Adc_GetResult
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Adc_ProcessAll
@@ -541,8 +548,8 @@ Global Symbols
 <LI><a href="#[40]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Gpt_Init
 <LI><a href="#[55]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Uart_Init
 <LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Lora_SendPacket
-<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Lora_BuildJoyPacket
-<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Lora_BuildScrPacket
+<LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Lora_BuildJoyPacket
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Lora_BuildScrPacket
 </UL>
 <BR>[Called By]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -551,7 +558,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> hal_data.o(.rodata.g_uart2_cfg)
 </UL>
 <P><STRONG><a name="[4d]"></a>main</STRONG> (Thumb, 10 bytes, Stack size 8 bytes, main.o(.text.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 248<LI>Call Chain = main &rArr; hal_entry &rArr; Adc_CalibrateCenter
+<BR><BR>[Stack]<UL><LI>Max Depth = 272<LI>Call Chain = main &rArr; hal_entry &rArr; Adc_CalibrateCenter
 </UL>
 <BR>[Calls]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hal_entry
 </UL>
@@ -561,29 +568,29 @@ Global Symbols
 <P><STRONG><a name="[e]"></a>sci_uart_eri_isr</STRONG> (Thumb, 106 bytes, Stack size 16 bytes, r_sci_uart.o(.text.sci_uart_eri_isr))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = sci_uart_eri_isr &rArr; r_sci_uart_call_callback
 </UL>
-<BR>[Calls]<UL><LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;r_sci_uart_call_callback
+<BR>[Calls]<UL><LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;r_sci_uart_call_callback
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> vector_data.o(.application_vectors)
 </UL>
 <P><STRONG><a name="[b]"></a>sci_uart_rxi_isr</STRONG> (Thumb, 136 bytes, Stack size 16 bytes, r_sci_uart.o(.text.sci_uart_rxi_isr))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = sci_uart_rxi_isr &rArr; r_sci_uart_call_callback
 </UL>
-<BR>[Calls]<UL><LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
-<LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;r_sci_uart_call_callback
+<BR>[Calls]<UL><LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
+<LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;r_sci_uart_call_callback
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> vector_data.o(.application_vectors)
 </UL>
 <P><STRONG><a name="[d]"></a>sci_uart_tei_isr</STRONG> (Thumb, 74 bytes, Stack size 8 bytes, r_sci_uart.o(.text.sci_uart_tei_isr))
 <BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = sci_uart_tei_isr &rArr; r_sci_uart_call_callback
 </UL>
-<BR>[Calls]<UL><LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;r_sci_uart_call_callback
+<BR>[Calls]<UL><LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;r_sci_uart_call_callback
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> vector_data.o(.application_vectors)
 </UL>
 <P><STRONG><a name="[c]"></a>sci_uart_txi_isr</STRONG> (Thumb, 136 bytes, Stack size 0 bytes, r_sci_uart.o(.text.sci_uart_txi_isr))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = sci_uart_txi_isr &rArr; r_sci_uart_call_callback
 </UL>
-<BR>[Calls]<UL><LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;r_sci_uart_call_callback
+<BR>[Calls]<UL><LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;r_sci_uart_call_callback
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> vector_data.o(.application_vectors)
 </UL>
@@ -630,7 +637,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;r_ioport_pins_config
 </UL>
 
-<P><STRONG><a name="[67]"></a>r_sci_uart_call_callback</STRONG> (Thumb, 64 bytes, Stack size 32 bytes, r_sci_uart.o(.text.r_sci_uart_call_callback))
+<P><STRONG><a name="[68]"></a>r_sci_uart_call_callback</STRONG> (Thumb, 64 bytes, Stack size 32 bytes, r_sci_uart.o(.text.r_sci_uart_call_callback))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = r_sci_uart_call_callback
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sci_uart_eri_isr

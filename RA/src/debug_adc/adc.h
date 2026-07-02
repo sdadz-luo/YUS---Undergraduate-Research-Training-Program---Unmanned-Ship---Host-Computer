@@ -21,8 +21,9 @@
 
 /* 数字量阈值与迟滞（死区）------------------------------------------ */
 #define ADC_FULL_RANGE          4095        /* 12位 ADC 满量程           */
-#define ADC_DEAD_ZONE           1229        /* 死区宽度 ≈ 30% × 4095    */
-#define ADC_DEAD_ZONE_HALF      614         /* 死区半宽                  */
+#define ADC_HALF_RANGE          2048        /* 半量程（中点到端点）      */
+#define ADC_DEAD_ZONE_HALF      614         /* 死区半宽 = 30% × 半量程  */
+#define ADC_DEAD_ZONE_PCT       30          /* 死区占半量程百分比        */
 
 /*============================================================================*
  * 函数声明
@@ -64,7 +65,7 @@ bool Adc_ScanCompleteCheck(void);
 /**
  * @brief 设置指定通道的比较阈值
  * @param channel   逻辑通道号
- * @param threshold 阈值 (0~4095)，死区范围为 threshold ± 30%
+ * @param threshold 阈值 (0~4095)，死区范围为 threshold ± 15%
  */
 void Adc_SetThreshold(uint8_t channel, uint16_t threshold);
 
@@ -82,11 +83,11 @@ void Adc_CalibrateCenter(uint8_t samples);
  * @brief 处理所有通道：将 ADC 原始值转换为方向态 0/1/2
  *
  * 判断规则：
- *   ADC值 > (threshold + 30%) → 输出 1（正向）
- *   ADC值 < (threshold - 30%) → 输出 2（反向）
- *   死区内 (threshold ± 30%) → 输出 0（原点）
+ *   ADC值 > (threshold + 15%) → 输出 1（正向）
+ *   ADC值 < (threshold - 15%) → 输出 2（反向）
+ *   死区内 (threshold ± 15%) → 输出 0（原点）
  *
- * @note 死区宽度固定为 60% 满量程，对称分布在阈值两侧。
+ * @note 死区宽度固定为 30% 满量程，对称分布在阈值两侧。
  */
 void Adc_ProcessAll(void);
 
@@ -97,6 +98,13 @@ void Adc_ProcessAll(void);
  */
 uint8_t Adc_GetDirection(uint8_t channel);
 
+/**
+ * @brief 获取指定通道的当前阈值
+ * @param channel 逻辑通道号
+ * @return 阈值
+ */
+uint16_t Adc_GetThreshold(uint8_t channel);
+
 /*============================================================================*
  * 摇杆方向合成
  *============================================================================*/
@@ -104,13 +112,19 @@ uint8_t Adc_GetDirection(uint8_t channel);
 /**
  * @brief 根据 X/Y 轴方向合成摇杆方向
  *
- * @param dir_x  X轴方向 (Adc_GetDirection 返回值)
- * @param dir_y  Y轴方向 (Adc_GetDirection 返回值)
- * @return 0=中间, 1=上, 2=下, 3=左, 4=右
+ * 两轴同时动作时，比较偏离中心的幅度，取偏离更大的轴。
  *
- * @note 对角线方向优先判断 Y 轴（上下优先于左右）。
+ * @param dir_x  X轴方向 (0=原点, 1=正向, 2=反向)
+ * @param dir_y  Y轴方向
+ * @param adc_x  X轴 ADC 原始值（用于偏差比较）
+ * @param adc_y  Y轴 ADC 原始值
+ * @param th_x   X轴阈值
+ * @param th_y   Y轴阈值
+ * @return 0=中间, 1=上, 2=下, 3=左, 4=右
  */
-uint8_t Adc_JoystickDir(uint8_t dir_x, uint8_t dir_y);
+uint8_t Adc_JoystickDir(uint8_t dir_x, uint8_t dir_y,
+                        uint16_t adc_x, uint16_t adc_y,
+                        uint16_t th_x, uint16_t th_y);
 
 /*============================================================================*
  * FSP 回调函数声明
