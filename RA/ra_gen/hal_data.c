@@ -197,7 +197,7 @@ const gpt_extended_cfg_t g_timer0_extend =
 const timer_cfg_t g_timer0_cfg =
 {
     .mode                = TIMER_MODE_PERIODIC,
-    /* Actual period: 0.01 seconds. Actual duty: 50%. */ .period_counts = (uint32_t) 0xf4240, .duty_cycle_counts = 0x7a120, .source_div = (timer_source_div_t)0,
+    /* Actual period: 0.002 seconds (2ms). */ .period_counts = (uint32_t) 0x30D40, .duty_cycle_counts = 0x186A0, .source_div = (timer_source_div_t)0,
     .channel             = 0,
     .p_callback          = gpt0_callback,
     /** If NULL then do not add & */

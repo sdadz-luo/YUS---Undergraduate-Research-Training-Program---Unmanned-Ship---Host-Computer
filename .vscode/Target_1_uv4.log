@@ -1,16 +1,3 @@
-*** Using Compiler 'V6.24', folder: 'D:\keil5\ARM\ARMCLANG\Bin'
-Build target 'Target_1'
-Before Build - User command #1: cmd /c ""d:\project\Host computer\RA\rasc_launcher.bat" "d:\project\Host computer\RA\rasc_version.txt" -nosplash --launcher.suppressErrors --generate --compiler ARMv6 --devicefamily ra "d:\project\Host computer\RA\configuration.xml" 2> "%TEMP%\rasc_stderr.out" && echo. > "d:\project\Host computer\RA\output.rasc""
-无法分析 AutoRun 注册表项中指定的值。
-[INFO] Input file "d:\project\Host computer\RA\configuration.xml" is older than output file "d:\project\Host computer\RA\output.rasc". Skipping RASC invocation.
-compiling hal_entry.c...
-compiling lora_proto.c...
-linking...
-Program Size: Code=8480 RO-data=1488 RW-data=8 ZI-data=5756  
-FromELF: creating hex file...
-After Build - User command #1: cmd /c ""d:\project\Host computer\RA\rasc_launcher.bat" "d:\project\Host computer\RA\rasc_version.txt" -nosplash --launcher.suppressErrors --gensmartbundle --compiler ARMv6 --devicefamily ra "d:\project\Host computer\RA\configuration.xml" "d:\project\Host computer\RA\Objects\FSP_Project.axf" 2> "%TEMP%\rasc_stderr.out""
-无法分析 AutoRun 注册表项中指定的值。
-[INFO] Input file "d:\project\Host computer\RA\Objects\FSP_Project.axf" is newer than output file "d:\project\Host computer\RA\Objects\FSP_Project.sbd". Proceeding with RASC invocation...
-Generating Smart Bundle..
-".\Objects\FSP_Project.axf" - 0 Error(s), 0 Warning(s).
-Build Time Elapsed:  00:00:08
+Load "d:\\project\\Host computer\\RA\\Objects\\FSP_Project.axf" 
+Erase Done.Programming Done.Verify OK.Application running ...
+Flash Load finished at 16:22:19

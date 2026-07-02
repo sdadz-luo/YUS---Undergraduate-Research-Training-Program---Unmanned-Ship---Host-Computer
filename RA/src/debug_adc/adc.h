@@ -21,8 +21,8 @@
 
 /* 数字量阈值与迟滞（死区）------------------------------------------ */
 #define ADC_FULL_RANGE          4095        /* 12位 ADC 满量程           */
-#define ADC_DEAD_ZONE           2457        /* 死区宽度 ≈ 60% × 4095    */
-#define ADC_DEAD_ZONE_HALF      1229        /* 死区半宽                  */
+#define ADC_DEAD_ZONE           1229        /* 死区宽度 ≈ 30% × 4095    */
+#define ADC_DEAD_ZONE_HALF      614         /* 死区半宽                  */
 
 /*============================================================================*
  * 函数声明
@@ -64,9 +64,19 @@ bool Adc_ScanCompleteCheck(void);
 /**
  * @brief 设置指定通道的比较阈值
  * @param channel   逻辑通道号
- * @param threshold 阈值 (0~4095)，死区范围为 threshold ± 5%
+ * @param threshold 阈值 (0~4095)，死区范围为 threshold ± 30%
  */
 void Adc_SetThreshold(uint8_t channel, uint16_t threshold);
+
+/**
+ * @brief 校准摇杆中心：多次采样取平均，设为各通道阈值
+ *
+ * 调用前提：已启动 ADC 扫描并等待完成（在校准前确保至少完成一次扫描）。
+ * 建议上电后摇杆在静止位置时调用。
+ *
+ * @param samples  采样次数
+ */
+void Adc_CalibrateCenter(uint8_t samples);
 
 /**
  * @brief 处理所有通道：将 ADC 原始值转换为方向态 0/1/2

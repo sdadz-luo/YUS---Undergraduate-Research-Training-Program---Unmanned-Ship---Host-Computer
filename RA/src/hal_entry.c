@@ -55,7 +55,13 @@ void hal_entry(void)
     Uart_Init();                        /* UART3(串口屏) + UART2(LoRa) + DMAC */
     Gpt_Init();                         /* GPT 定时器 10ms */
     Adc_Init();                         /* ADC0 四通道(AN04/AN05/AN10/AN12) */
-    Gpt_Start();                        /* 启动 10ms 定时器 */
+
+    /* 摇杆中心校准：采样 8 次取平均，设为各通道阈值 */
+    Gpt_Start();                        /* 启动定时器使能 ADC 扫描 */
+    R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MILLISECONDS);  /* 等待 ADC 稳定 */
+    Adc_StartScan();                    /* 触发一次扫描 */
+    while (!Adc_IsScanComplete()) { }   /* 等待完成 */
+    Adc_CalibrateCenter(8);             /* 校准阈值 */
 
     while (1)
     {
