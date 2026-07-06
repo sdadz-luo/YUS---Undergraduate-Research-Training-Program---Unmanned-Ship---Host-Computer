@@ -38,7 +38,7 @@ void Lora_BuildScrPacket(uint8_t boat, uint8_t comp, uint8_t comp_data,
 }
 
 /*============================================================================*
- * 摇杆包构建: CC 01 <小白方向> 02 <小黑方向> CRC8 33  (7 字节)
+ * 摇杆包构建: CC 01 <小白方向> 02 <小黑方向> CRC8  (6 字节)
  *============================================================================*/
 void Lora_BuildJoyPacket(uint8_t dir1, uint8_t dir2, uint8_t *packet)
 {
@@ -48,7 +48,6 @@ void Lora_BuildJoyPacket(uint8_t dir1, uint8_t dir2, uint8_t *packet)
     packet[3] = JOY_PKT_BOAT2_ID;               /* 02     */
     packet[4] = JOYDIR_TO_LORA(dir2);           /* 小黑方向 */
     packet[5] = Lora_CalcCRC8(packet, JOY_PKT_CRC_LEN); /* CRC8 */
-    packet[6] = JOY_PKT_TAIL;                   /* 33    */
 }
 
 /*============================================================================*

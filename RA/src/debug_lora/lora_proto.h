@@ -13,8 +13,8 @@
  *   长度: 6 字节
  *
  * 摇杆包（行驶方向控制）:
- *   CC 01 <小白方向> 02 <小黑方向> <CRC8> 33
- *   长度: 7 字节
+ *   CC 01 <小白方向> 02 <小黑方向> <CRC8>
+ *   长度: 6 字节
  *============================================================================*/
 
 #define LORA_CRC_POLY           0x31        /* CRC-8 多项式               */
@@ -27,10 +27,9 @@
 
 /* 摇杆包定义 -------------------------------------------------------------- */
 #define JOY_PKT_HEADER          0xCC        /* 控制帧头                   */
-#define JOY_PKT_TAIL            0x33        /* 控制帧尾                   */
 #define JOY_PKT_BOAT1_ID        0x01        /* 小白标识                   */
 #define JOY_PKT_BOAT2_ID        0x02        /* 小黑标识                   */
-#define JOY_PKT_SIZE            7           /* 摇杆包长度                 */
+#define JOY_PKT_SIZE            6           /* 摇杆包长度                 */
 #define JOY_PKT_CRC_LEN         5           /* CRC8 校验范围（CC~方向）  */
 
 /* 组件编号定义 ------------------------------------------------------------ */
@@ -78,7 +77,7 @@ void Lora_BuildScrPacket(uint8_t boat, uint8_t comp, uint8_t comp_data,
                          uint8_t *packet);
 
 /**
- * @brief 构建摇杆包：CC 01 <小白方向> 02 <小黑方向> CRC8 33
+ * @brief 构建摇杆包：CC 01 <小白方向> 02 <小黑方向> CRC8
  * @param dir1  小白方向（0=停,1=前,2=后,3=左,4=右）
  * @param dir2  小黑方向
  * @param packet 输出缓冲区（至少 JOY_PKT_SIZE 字节）

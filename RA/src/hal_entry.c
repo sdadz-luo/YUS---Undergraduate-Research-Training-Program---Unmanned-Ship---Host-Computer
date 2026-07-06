@@ -45,7 +45,7 @@ void hal_entry(void)
 
     /* ---- LoRa 发送缓冲区 ------------------------------------------- */
     uint8_t  scr_pkt[SCR_PKT_SIZE];     /* 屏包: EE <船号> <组件> <数据> CRC8 FF */
-    uint8_t  joy_pkt[JOY_PKT_SIZE];     /* 摇杆包: CC 01 <方向1> 02 <方向2> CRC8 33 */
+    uint8_t  joy_pkt[JOY_PKT_SIZE];     /* 摇杆包: CC 01 <方向1> 02 <方向2> CRC8 */
 
     /* ---- 摇杆状态跟踪 ---------------------------------------------- */
     uint8_t  prev_joy1 = 0;             /* 摇杆1 上次发送的方向 */
