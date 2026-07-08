@@ -439,6 +439,16 @@
               <FileType>5</FileType>
               <FilePath>.\src\debug_adc\adc.h</FilePath>
             </File>
+            <File>
+              <FileName>lora_proto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\debug_lora\lora_proto.c</FilePath>
+            </File>
+            <File>
+              <FileName>lora_proto.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\debug_lora\lora_proto.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

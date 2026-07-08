@@ -15,6 +15,10 @@
             [8] = sci_uart_eri_isr, /* SCI3 ERI (Receive error) */
             [9] = gpt_counter_overflow_isr, /* GPT0 COUNTER OVERFLOW (Overflow) */
             [10] = adc_scan_end_isr, /* ADC0 SCAN END (End of A/D scanning operation) */
+            [11] = sci_uart_rxi_isr, /* SCI5 RXI (Receive data full) */
+            [12] = sci_uart_txi_isr, /* SCI5 TXI (Transmit data empty) */
+            [13] = sci_uart_tei_isr, /* SCI5 TEI (Transmit end) */
+            [14] = sci_uart_eri_isr, /* SCI5 ERI (Receive error) */
         };
         #if BSP_FEATURE_ICU_HAS_IELSR
         const bsp_interrupt_event_t g_interrupt_event_link_select[BSP_ICU_VECTOR_NUM_ENTRIES] =
@@ -30,6 +34,10 @@
             [8] = BSP_PRV_VECT_ENUM(EVENT_SCI3_ERI,GROUP0), /* SCI3 ERI (Receive error) */
             [9] = BSP_PRV_VECT_ENUM(EVENT_GPT0_COUNTER_OVERFLOW,GROUP1), /* GPT0 COUNTER OVERFLOW (Overflow) */
             [10] = BSP_PRV_VECT_ENUM(EVENT_ADC0_SCAN_END,GROUP2), /* ADC0 SCAN END (End of A/D scanning operation) */
+            [11] = BSP_PRV_VECT_ENUM(EVENT_SCI5_RXI,GROUP3), /* SCI5 RXI (Receive data full) */
+            [12] = BSP_PRV_VECT_ENUM(EVENT_SCI5_TXI,GROUP4), /* SCI5 TXI (Transmit data empty) */
+            [13] = BSP_PRV_VECT_ENUM(EVENT_SCI5_TEI,GROUP5), /* SCI5 TEI (Transmit end) */
+            [14] = BSP_PRV_VECT_ENUM(EVENT_SCI5_ERI,GROUP6), /* SCI5 ERI (Receive error) */
         };
         #endif
         #endif

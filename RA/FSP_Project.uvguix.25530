@@ -101,10 +101,10 @@
         <yPos>-1</yPos>
       </MaxPosition>
       <NormalPosition>
-        <Top>0</Top>
-        <Left>-7</Left>
-        <Right>1015</Right>
-        <Bottom>718</Bottom>
+        <Top>106</Top>
+        <Left>125</Left>
+        <Right>1147</Right>
+        <Bottom>824</Bottom>
       </NormalPosition>
     </WindowPosition>
     <MDIClientArea>
@@ -3606,9 +3606,9 @@
       <ActiveTab>0</ActiveTab>
       <Doc>
         <Name>.\src\hal_entry.c</Name>
-        <ColumnNumber>36</ColumnNumber>
-        <TopLine>10</TopLine>
-        <CurrentLine>39</CurrentLine>
+        <ColumnNumber>48</ColumnNumber>
+        <TopLine>124</TopLine>
+        <CurrentLine>44</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>

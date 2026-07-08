@@ -10,13 +10,14 @@
  *============================================================================*/
 #define UART3_RX_BUF_SIZE       256         /* UART3 接收环形缓冲区大小   */
 #define UART2_TX_TIMEOUT        1000        /* UART2 发送超时（循环次数） */
+#define UART5_RX_BUF_SIZE       16          /* UART5 人脸识别接收缓冲区   */
 
 /*============================================================================*
  * 函数声明
  *============================================================================*/
 
 /**
- * @brief 初始化所有 UART 模块（UART3 接收 + UART2 发送）
+ * @brief 初始化所有 UART 模块（UART3 + UART2 + UART5）
  */
 void Uart_Init(void);
 
@@ -40,6 +41,13 @@ uint16_t Uart3_DataAvailable(void);
 void Uart3_Flush(void);
 
 /**
+ * @brief 通过 UART3 向串口屏发送数据
+ * @param data  待发送数据
+ * @param len   发送长度
+ */
+void Uart3_SendData(const uint8_t *data, uint16_t len);
+
+/**
  * @brief 通过 UART2 (LoRa) 发送数据
  * @param data  待发送数据指针
  * @param len   发送长度
@@ -52,10 +60,17 @@ void Uart2_SendData(const uint8_t *data, uint16_t len);
  */
 bool Uart2_IsIdle(void);
 
+/**
+ * @brief 检查 UART5 是否收到字符 'A'（人脸识别通过）
+ * @return true=已收到 'A'
+ */
+bool Uart5_ReceivedA(void);
+
 /*============================================================================*
  * FSP 回调函数声明（已在 hal_data.h 中前置声明）
  *============================================================================*/
 void uart3_callback(uart_callback_args_t *p_args);
 void lora_callback(uart_callback_args_t *p_args);
+void UART5_callback(uart_callback_args_t *p_args);
 
 #endif /* _UART_H_ */

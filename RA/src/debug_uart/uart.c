@@ -15,6 +15,12 @@ static uint8_t     g_uart3_rx_byte;
 /* UART2 发送状态标志 */
 static volatile bool g_uart2_tx_busy = false;
 
+/* UART5 人脸识别 — 收到 'A' 标志 */
+static volatile bool g_uart5_received_a = false;
+
+/* UART3 发送状态标志 */
+static volatile bool g_uart3_tx_busy = false;
+
 /*============================================================================*
  * 内部函数
  *============================================================================*/
@@ -81,15 +87,20 @@ void transfer_uart3_rx_callback(transfer_callback_args_t *p_args)
  **********************************************************************************************************************/
 void uart3_callback(uart_callback_args_t *p_args)
 {
-    /* ---- 非 DMA 回退路径：字节直接从 RDR 读取 ---- */
+    /* ---- 接收：非 DMA 回退路径 ---- */
     if (UART_EVENT_RX_CHAR == p_args->event)
     {
         uart3_store_byte((uint8_t)p_args->data);
     }
-    /* ---- DMA 路径：数据由 DMAC 搬运，RXI ISR 只通知完成 ---- */
+    /* ---- 接收：DMA 路径 ---- */
     else if (UART_EVENT_RX_COMPLETE == p_args->event)
     {
         /* 不在此处理数据 —— 字节由 DMAC 搬运，等待 transfer_uart3_rx_callback */
+    }
+    /* ---- 发送完成 ---- */
+    else if (UART_EVENT_TX_COMPLETE == p_args->event)
+    {
+        g_uart3_tx_busy = false;
     }
 }
 
@@ -109,6 +120,22 @@ void lora_callback(uart_callback_args_t *p_args)
     }
 }
 
+/*******************************************************************************************************************//**
+ * @brief UART5 人脸识别模块接收回调
+ *
+ * 收到 'A' 时置标志，表示人脸验证通过。
+ **********************************************************************************************************************/
+void UART5_callback(uart_callback_args_t *p_args)
+{
+    if (UART_EVENT_RX_CHAR == p_args->event)
+    {
+        if ('A' == (char)p_args->data)
+        {
+            g_uart5_received_a = true;
+        }
+    }
+}
+
 /*============================================================================*
  * 接口函数
  *============================================================================*/
@@ -125,12 +152,16 @@ void Uart_Init(void)
 {
     fsp_err_t err;
 
-    /* ---- 打开 UART3：串口屏数据接收（内部自动初始化 DMAC） ---- */
+    /* ---- 打开 UART3：串口屏数据收发（内部自动初始化 DMAC 接收） ---- */
     err = g_uart3.p_api->open(g_uart3.p_ctrl, g_uart3.p_cfg);
     assert(FSP_SUCCESS == err);
 
     /* ---- 打开 UART2：LoRa 模块 ---- */
     err = g_uart2.p_api->open(g_uart2.p_ctrl, g_uart2.p_cfg);
+    assert(FSP_SUCCESS == err);
+
+    /* ---- 打开 UART5：人脸识别模块 ---- */
+    err = g_uart5.p_api->open(g_uart5.p_ctrl, g_uart5.p_cfg);
     assert(FSP_SUCCESS == err);
 
     /* ---- 启动 UART3 的 DMAC 接收 ---- */
@@ -207,4 +238,36 @@ void Uart2_SendData(const uint8_t *data, uint16_t len)
 bool Uart2_IsIdle(void)
 {
     return !g_uart2_tx_busy;
+}
+
+/*******************************************************************************************************************//**
+ * @brief 通过 UART3 向串口屏发送数据
+ *
+ * 阻塞等待上一次发送完成后，启动新的发送。
+ * @param data  数据指针
+ * @param len   发送长度
+ **********************************************************************************************************************/
+void Uart3_SendData(const uint8_t *data, uint16_t len)
+{
+    while (g_uart3_tx_busy)
+    {
+        /* 等待上一次发送完成 */
+    }
+
+    g_uart3_tx_busy = true;
+    g_uart3.p_api->write(g_uart3.p_ctrl, data, len);
+}
+
+/*******************************************************************************************************************//**
+ * @brief 检查 UART5 是否收到字符 'A'（人脸识别通过）
+ * @return true=已收到 'A'
+ **********************************************************************************************************************/
+bool Uart5_ReceivedA(void)
+{
+    bool ret = g_uart5_received_a;
+    if (ret)
+    {
+        g_uart5_received_a = false;     /* 清除标志 */
+    }
+    return ret;
 }

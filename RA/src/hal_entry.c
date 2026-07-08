@@ -137,16 +137,24 @@ void hal_entry(void)
         {
             scr_frame_ready = false;
             Lora_BuildScrPacket(scr_boat, scr_comp, scr_comp_data, scr_pkt);
-            Lora_SendPacket(scr_pkt, SCR_PKT_SIZE);
-            prev_joy1 = joy1; prev_joy2 = joy2;  /* 同步摇杆状态 */
-        }
-
         /* 摇杆包: 任一摇杆方向发生变化 */
         if ((joy1 != prev_joy1) || (joy2 != prev_joy2))
         {
             Lora_BuildJoyPacket(joy1, joy2, joy_pkt);
             Lora_SendPacket(joy_pkt, JOY_PKT_SIZE);
             prev_joy1 = joy1; prev_joy2 = joy2;
+        }
+
+        /* =============================================================
+         * 5. 人脸识别处理
+         *
+         * 收到 'A' 时向串口屏发送指令显示识别结果。
+         * ============================================================= */
+        if (Uart5_ReceivedA())
+        {
+            static const uint8_t hmi_cmd[] = "t0.txt=\"123456\"\xff\xff\xff";
+            Uart3_SendData(hmi_cmd, sizeof(hmi_cmd) - 1);
+        }
         }
     }
 
