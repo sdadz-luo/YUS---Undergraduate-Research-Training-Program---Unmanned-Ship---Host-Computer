@@ -144,6 +144,7 @@ void hal_entry(void)
             Lora_SendPacket(joy_pkt, JOY_PKT_SIZE);
             prev_joy1 = joy1; prev_joy2 = joy2;
         }
+        }
 
         /* =============================================================
          * 5. 人脸识别处理
@@ -152,9 +153,8 @@ void hal_entry(void)
          * ============================================================= */
         if (Uart5_ReceivedA())
         {
-            static const uint8_t hmi_cmd[] = "t0.txt=\"123456\"\xff\xff\xff";
+            static const uint8_t hmi_cmd[] = "t110.txt=\"123456\"\xff\xff\xff";
             Uart3_SendData(hmi_cmd, sizeof(hmi_cmd) - 1);
-        }
         }
     }
 
