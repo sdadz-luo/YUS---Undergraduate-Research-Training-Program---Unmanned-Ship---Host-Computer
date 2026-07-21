@@ -137,13 +137,14 @@ void hal_entry(void)
         {
             scr_frame_ready = false;
             Lora_BuildScrPacket(scr_boat, scr_comp, scr_comp_data, scr_pkt);
+        }
+
         /* 摇杆包: 任一摇杆方向发生变化 */
         if ((joy1 != prev_joy1) || (joy2 != prev_joy2))
         {
             Lora_BuildJoyPacket(joy1, joy2, joy_pkt);
             Lora_SendPacket(joy_pkt, JOY_PKT_SIZE);
             prev_joy1 = joy1; prev_joy2 = joy2;
-        }
         }
 
         /* =============================================================
